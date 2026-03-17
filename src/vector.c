@@ -669,6 +669,7 @@ cosine_distance(PG_FUNCTION_ARGS)
 	Vector	   *a = PG_GETARG_VECTOR_P(0);
 	Vector	   *b = PG_GETARG_VECTOR_P(1);
 	double		similarity;
+	static uint64_t call_cnt = 0;
 
 	CheckDims(a, b);
 
@@ -686,6 +687,13 @@ cosine_distance(PG_FUNCTION_ARGS)
 	else if (similarity < -1)
 		similarity = -1.0;
 
+	call_cnt++;
+
+	if ((call_cnt % 10000) == 0)
+	{
+		fprintf(stdout, "cosine_distance called: %lu", call_cnt);
+	}
+	
 	PG_RETURN_FLOAT8(1.0 - similarity);
 }
 
