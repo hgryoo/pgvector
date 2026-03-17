@@ -58,6 +58,8 @@ _PG_init(void)
 	IvfflatInit();
 }
 
+static uint64_t call_cnt = 0;
+
 /*
  * Ensure same dimensions
  */
@@ -646,7 +648,7 @@ VectorCosineSimilarity(int dim, float *ax, float *bx)
 	float		similarity = 0.0;
 	float		norma = 0.0;
 	float		normb = 0.0;
-
+	
 	/* Auto-vectorized */
 	for (int i = 0; i < dim; i++)
 	{
@@ -654,6 +656,8 @@ VectorCosineSimilarity(int dim, float *ax, float *bx)
 		norma += ax[i] * ax[i];
 		normb += bx[i] * bx[i];
 	}
+
+	call_cnt++;
 
 	/* Use sqrt(a * b) over sqrt(a) * sqrt(b) */
 	return (double) similarity / sqrt((double) norma * (double) normb);
@@ -669,7 +673,6 @@ cosine_distance(PG_FUNCTION_ARGS)
 	Vector	   *a = PG_GETARG_VECTOR_P(0);
 	Vector	   *b = PG_GETARG_VECTOR_P(1);
 	double		similarity;
-	static uint64_t call_cnt = 0;
 
 	CheckDims(a, b);
 
@@ -686,15 +689,15 @@ cosine_distance(PG_FUNCTION_ARGS)
 		similarity = 1.0;
 	else if (similarity < -1)
 		similarity = -1.0;
-
-	call_cnt++;
-
-	if ((call_cnt % 10000) == 0)
-	{
-		fprintf(stdout, "cosine_distance called: %lu", call_cnt);
-	}
 	
 	PG_RETURN_FLOAT8(1.0 - similarity);
+}
+
+FUNCTION_PREFIX PG_FUNCTION_INFO_V1(get_cosine_call_cnt);
+Datum
+get_cosine_call_cnt(PG_FUNCTION_ARGS)
+{
+	PG_RETURN_INT64(call_cnt);
 }
 
 /*
