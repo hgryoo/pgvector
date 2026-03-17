@@ -58,6 +58,9 @@ CREATE FUNCTION binary_quantize(vector) RETURNS bit
 CREATE FUNCTION subvector(vector, int, int) RETURNS vector
 	AS 'MODULE_PATHNAME' LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
+CREATE FUNCTION get_cosine_call_cnt(int) RETURNS bigint
+	AS 'MODULE_PATHNAME' LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
+
 -- vector private functions
 
 CREATE FUNCTION vector_add(vector, vector) RETURNS vector
