@@ -697,6 +697,7 @@ FUNCTION_PREFIX PG_FUNCTION_INFO_V1(get_cosine_call_cnt);
 Datum
 get_cosine_call_cnt(PG_FUNCTION_ARGS)
 {
+	int32		dummy = PG_GETARG_INT32(0);
 	PG_RETURN_INT64(call_cnt);
 }
 
