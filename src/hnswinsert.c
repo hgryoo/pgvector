@@ -34,6 +34,8 @@ GetInsertPage(Relation index)
 
 	UnlockReleaseBuffer(buf);
 
+         HnswGetStats () ->read_buffer_cnt++;
+
 	return insertPage;
 }
 
@@ -75,7 +77,9 @@ HnswFreeOffset(Relation index, Buffer buf, Page page, HnswElement element, Size 
 			else
 			{
 				*nbuf = ReadBuffer(index, neighborPage);
+        
 				LockBuffer(*nbuf, BUFFER_LOCK_EXCLUSIVE);
+                                HnswGetStats () ->read_buffer_cnt++;
 
 				/* Skip WAL for now */
 				*npage = BufferGetPage(*nbuf);
@@ -182,6 +186,8 @@ AddElementOnDisk(Relation index, HnswElement e, int m, BlockNumber insertPage, B
 	{
 		buf = ReadBuffer(index, currentPage);
 		LockBuffer(buf, BUFFER_LOCK_EXCLUSIVE);
+
+                 HnswGetStats () ->read_buffer_cnt++;
 
 		if (building)
 		{
@@ -481,6 +487,7 @@ UpdateNeighborOnDisk(HnswElement element, HnswElement newElement, int idx, int m
 
 	/* Register page */
 	buf = ReadBuffer(index, element->neighborPage);
+         HnswGetStats () ->read_buffer_cnt++;
 	LockBuffer(buf, BUFFER_LOCK_EXCLUSIVE);
 	if (building)
 	{
@@ -592,6 +599,7 @@ AddDuplicateOnDisk(Relation index, HnswElement element, HnswElement dup, bool bu
 
 	/* Read page */
 	buf = ReadBuffer(index, dup->blkno);
+         HnswGetStats () ->read_buffer_cnt++;
 	LockBuffer(buf, BUFFER_LOCK_EXCLUSIVE);
 	if (building)
 	{

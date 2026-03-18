@@ -184,6 +184,7 @@ HnswNewBuffer(Relation index, ForkNumber forkNum)
 	Buffer		buf = ReadBufferExtended(index, forkNum, P_NEW, RBM_NORMAL, NULL);
 
 	LockBuffer(buf, BUFFER_LOCK_EXCLUSIVE);
+   HnswGetStats () ->read_buffer_cnt++;
 	return buf;
 }
 
@@ -324,6 +325,8 @@ HnswGetMetaPageInfo(Relation index, int *m, HnswElement * entryPoint)
 			*entryPoint = NULL;
 	}
 
+ HnswGetStats () ->read_buffer_cnt++;
+
 	UnlockReleaseBuffer(buf);
 }
 
@@ -392,7 +395,7 @@ HnswUpdateMetaPage(Relation index, int updateEntry, HnswElement entryPoint, Bloc
 	}
 
 	HnswUpdateMetaPageInfo(page, updateEntry, entryPoint, insertPage);
-
+ HnswGetStats () ->read_buffer_cnt++;
 	if (building)
 		MarkBufferDirty(buf);
 	else
@@ -563,7 +566,7 @@ HnswLoadElementImpl(BlockNumber blkno, OffsetNumber offno, double *distance, Hns
 
 		HnswLoadElementFromTuple(*element, etup, true, loadVec);
 	}
-
+ HnswGetStats () ->read_buffer_cnt++;
 	UnlockReleaseBuffer(buf);
 }
 
@@ -780,7 +783,7 @@ HnswLoadNeighborTids(HnswElement element, ItemPointerData *indextids, Relation i
 	/* Copy to minimize lock time */
 	start = (element->level - lc) * m;
 	memcpy(indextids, ntup->indextids + start, lm * sizeof(ItemPointerData));
-
+ HnswGetStats () ->read_buffer_cnt++;
 	UnlockReleaseBuffer(buf);
 	return true;
 }

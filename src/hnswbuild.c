@@ -283,6 +283,8 @@ WriteNeighborTuples(HnswBuildState * buildstate)
 		LockBuffer(buf, BUFFER_LOCK_EXCLUSIVE);
 		page = BufferGetPage(buf);
 
+                HnswGetStats () ->read_buffer_cnt++;
+
 		HnswSetNeighborTuple(base, ntup, element, m);
 
 		if (!PageIndexTupleOverwrite(page, element->neighborOffno, (Item) ntup, ntupSize))

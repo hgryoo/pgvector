@@ -413,6 +413,14 @@ typedef struct HnswVacuumState
 	MemoryContext tmpCtx;
 }			HnswVacuumState;
 
+typedef struct HnswStats
+{
+    uint64 cal_vec_cnt;
+    uint64 read_buffer_cnt;
+}                       HnswStats;
+
+static HnswStats *g_stat;
+
 /* Methods */
 int			HnswGetM(Relation index);
 int			HnswGetEfConstruction(Relation index);
@@ -472,6 +480,22 @@ HnswGetNeighbors(char *base, HnswElement element, int lc)
 	Assert(element->level >= lc);
 
 	return HnswPtrAccess(base, neighborList[lc]);
+}
+
+inline HnswStats *
+HnswGetStats ()
+{
+  bool found;
+  if (!g_stat)
+  {
+    g_stat = ShmemInitStruct("vector stat",
+                         sizeof(HnswStats),
+                         &found);
+    g_stat->cal_vec_cnt = 0;
+    g_stat->read_buffer_cnt = 0;
+  }
+
+  return g_stat;
 }
 
 /* Hash tables */

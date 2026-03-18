@@ -20,7 +20,9 @@
 #include "utils/fmgrprotos.h"
 #include "utils/lsyscache.h"
 #include "utils/varbit.h"
+#include "utils/builtins.h"
 #include "vector.h"
+
 
 #if PG_VERSION_NUM >= 160000
 #include "varatt.h"
@@ -52,13 +54,12 @@ PGDLLEXPORT void _PG_init(void);
 void
 _PG_init(void)
 {
+        RequestAddinShmemSpace(sizeof(HnswStats));
 	BitvecInit();
 	HalfvecInit();
 	HnswInit();
 	IvfflatInit();
 }
-
-static uint64_t call_cnt = 0;
 
 /*
  * Ensure same dimensions
@@ -657,7 +658,7 @@ VectorCosineSimilarity(int dim, float *ax, float *bx)
 		normb += bx[i] * bx[i];
 	}
 
-	call_cnt++;
+        HnswGetStats () ->cal_vec_cnt++;
 
 	/* Use sqrt(a * b) over sqrt(a) * sqrt(b) */
 	return (double) similarity / sqrt((double) norma * (double) normb);
@@ -693,12 +694,22 @@ cosine_distance(PG_FUNCTION_ARGS)
 	PG_RETURN_FLOAT8(1.0 - similarity);
 }
 
-FUNCTION_PREFIX PG_FUNCTION_INFO_V1(get_cosine_call_cnt);
+FUNCTION_PREFIX PG_FUNCTION_INFO_V1(get_call_cnt);
 Datum
-get_cosine_call_cnt(PG_FUNCTION_ARGS)
+get_call_cnt(PG_FUNCTION_ARGS)
 {
-	int32		dummy = PG_GETARG_INT32(0);
-	PG_RETURN_INT64(call_cnt);
+    char buf[256];
+
+    HnswStats *stat = HnswGetStats();
+    if (stat == NULL)
+        PG_RETURN_NULL();
+
+    snprintf(buf, sizeof(buf),
+             "cal_vec_cnt=%lu, read_buffer_cnt=%lu",
+             (unsigned long) stat->cal_vec_cnt,
+             (unsigned long) stat->read_buffer_cnt);
+
+    PG_RETURN_TEXT_P(cstring_to_text(buf));
 }
 
 /*
