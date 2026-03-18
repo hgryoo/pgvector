@@ -38,6 +38,8 @@ double		hnsw_scan_mem_multiplier;
 int			hnsw_lock_tranche_id;
 static relopt_kind hnsw_relopt_kind;
 
+static HnswStats *g_stat = NULL;
+
 /*
  * Assign a tranche ID for our LWLocks. This only needs to be done by one
  * backend, as the tranche ID is remembered in shared memory.
@@ -125,6 +127,18 @@ hnswbuildphasename(int64 phasenum)
 		default:
 			return NULL;
 	}
+}
+
+HnswStats *
+HnswGetStats ()
+{
+  return g_stat;
+}
+
+void
+HnswSetStats (HnswStats * s)
+{
+  g_stat = s;
 }
 
 /*

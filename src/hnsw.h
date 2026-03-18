@@ -419,8 +419,6 @@ typedef struct HnswStats
     uint64 read_buffer_cnt;
 }                       HnswStats;
 
-static HnswStats *g_stat = NULL;
-
 /* Methods */
 int			HnswGetM(Relation index);
 int			HnswGetEfConstruction(Relation index);
@@ -483,16 +481,10 @@ HnswGetNeighbors(char *base, HnswElement element, int lc)
 }
 
 HnswStats *
-HnswGetStats ()
-{
-  return g_stat;
-}
+HnswGetStats ();
 
 void
-HnswSetStats (HnswStats * s)
-{
-  g_stat = s;
-}
+HnswSetStats (HnswStats * s);
 
 /* Hash tables */
 typedef struct TidHashEntry
