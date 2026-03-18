@@ -613,6 +613,8 @@ VectorInnerProduct(int dim, float *ax, float *bx)
 	for (int i = 0; i < dim; i++)
 		distance += ax[i] * bx[i];
 
+        HnswGetStats () ->cal_vec_cnt++;
+
 	return distance;
 }
 
