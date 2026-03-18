@@ -68,6 +68,17 @@ HnswInitLockTranche(void)
 #endif
 	}
 	hnsw_lock_tranche_id = tranche_ids[0];
+
+        g_stat = ShmemInitStruct("vector stat",
+                                sizeof(HnswStats),
+                                &found);
+
+        if (!found)
+        {
+            g_stat->cal_vec_cnt = 0;
+            g_stat->read_buffer_cnt = 0;
+        }
+
 	LWLockRelease(AddinShmemInitLock);
 
 #if PG_VERSION_NUM < 190000
