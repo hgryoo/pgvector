@@ -56,7 +56,7 @@ PGDLLEXPORT void _PG_init(void);
 void
 _PG_init(void)
 {
-        RequestAddinShmemSpace(sizeof(HnswStats));
+        // RequestAddinShmemSpace(sizeof(HnswStats));
 
 	BitvecInit();
 	HalfvecInit();
