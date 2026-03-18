@@ -47,6 +47,29 @@ PG_MODULE_MAGIC_EXT(.name = "vector",.version = "0.8.2");
 PG_MODULE_MAGIC;
 #endif
 
+static shmem_startup_hook_type prev_shmem_startup_hook = NULL;
+
+static void
+hnsw_shmem_startup(void)
+{
+    bool found;
+
+    if (prev_shmem_startup_hook)
+        prev_shmem_startup_hook();
+
+    HnswStats *g_stat = ShmemInitStruct("vector stat",
+                             sizeof(HnswStats),
+                             &found);
+
+    if (!found)
+    {
+        g_stat->cal_vec_cnt = 0;
+        g_stat->read_buffer_cnt = 0;
+    }
+
+    HnswSetStats (g_stat);
+}
+
 /*
  * Initialize index options and variables
  */
@@ -55,7 +78,10 @@ void
 _PG_init(void)
 {
         RequestAddinShmemSpace(sizeof(HnswStats));
-        HnswGetStats();
+
+    prev_shmem_startup_hook = shmem_startup_hook;
+    shmem_startup_hook = hnsw_shmem_startup;
+    
 	BitvecInit();
 	HalfvecInit();
 	HnswInit();

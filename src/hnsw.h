@@ -485,17 +485,13 @@ HnswGetNeighbors(char *base, HnswElement element, int lc)
 inline HnswStats *
 HnswGetStats ()
 {
-  bool found;
-  if (!g_stat)
-  {
-    g_stat = ShmemInitStruct("vector stat",
-                         sizeof(HnswStats),
-                         &found);
-    g_stat->cal_vec_cnt = 0;
-    g_stat->read_buffer_cnt = 0;
-  }
-
   return g_stat;
+}
+
+inline void
+HnswSetStats (HnswStats * s)
+{
+  g_stat = s;
 }
 
 /* Hash tables */
