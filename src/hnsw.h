@@ -419,7 +419,7 @@ typedef struct HnswStats
     uint64 read_buffer_cnt;
 }                       HnswStats;
 
-static HnswStats *g_stat;
+static HnswStats *g_stat = NULL;
 
 /* Methods */
 int			HnswGetM(Relation index);
