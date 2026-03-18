@@ -55,6 +55,7 @@ void
 _PG_init(void)
 {
         RequestAddinShmemSpace(sizeof(HnswStats));
+        HnswGetStats();
 	BitvecInit();
 	HalfvecInit();
 	HnswInit();
