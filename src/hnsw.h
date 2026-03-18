@@ -482,13 +482,13 @@ HnswGetNeighbors(char *base, HnswElement element, int lc)
 	return HnswPtrAccess(base, neighborList[lc]);
 }
 
-inline HnswStats *
+HnswStats *
 HnswGetStats ()
 {
   return g_stat;
 }
 
-inline void
+void
 HnswSetStats (HnswStats * s)
 {
   g_stat = s;

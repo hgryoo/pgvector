@@ -22,7 +22,9 @@
 #include "utils/varbit.h"
 #include "utils/builtins.h"
 #include "vector.h"
-
+#include "storage/ipc.h"
+#include "storage/shmem.h"
+#include "storage/lwlock.h"
 
 #if PG_VERSION_NUM >= 160000
 #include "varatt.h"
@@ -57,17 +59,17 @@ hnsw_shmem_startup(void)
     if (prev_shmem_startup_hook)
         prev_shmem_startup_hook();
 
-    HnswStats *g_stat = ShmemInitStruct("vector stat",
+    HnswStats *stat = ShmemInitStruct("vector stat",
                              sizeof(HnswStats),
                              &found);
 
     if (!found)
     {
-        g_stat->cal_vec_cnt = 0;
-        g_stat->read_buffer_cnt = 0;
+        stat->cal_vec_cnt = 0;
+        stat->read_buffer_cnt = 0;
     }
 
-    HnswSetStats (g_stat);
+    HnswSetStats (stat);
 }
 
 /*
@@ -81,7 +83,7 @@ _PG_init(void)
 
     prev_shmem_startup_hook = shmem_startup_hook;
     shmem_startup_hook = hnsw_shmem_startup;
-    
+
 	BitvecInit();
 	HalfvecInit();
 	HnswInit();
